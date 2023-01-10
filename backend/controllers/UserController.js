@@ -47,11 +47,15 @@ const register = async (req, res) => {
         _id: newUser._id,
         token: generateToken(newUser._id),
     });
+};
 
-
+// Sign user in 
+const login = (req, res) => {
+    res.send("Login");
 };
 
 module.exports = {
     register,
+    login,
 };
 
