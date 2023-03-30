@@ -3,6 +3,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { default: mongoose } = require("mongoose");
+mongoose.set('strictQuery', false);
 const { restart } = require("nodemon");
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -119,11 +120,34 @@ const update = async (req, res) => {
 
     if (bio) {
         user.bio = bio;
+        const user = await User.findById(req.params.userId, { bio: 1 });
+
     }
 
     await user.save();
 
-    res.status(200).json(user);
+    res.status(200).json({ bio: user.bio });
+};
+
+// Get user by id
+const getUserById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await User.findById(mongoose.Types.ObjectId(id)).select("-password");
+        // Check if the user exists
+        if (!user) {
+            res.status(404).json({ erros: ["User not found."] });
+            return;
+        }
+        res.status(200).json(user);
+
+    } catch (error) {
+        res.status(404).json({ erros: ["User not found."] });
+        return;
+    }
+
+
 };
 
 module.exports = {
@@ -131,5 +155,6 @@ module.exports = {
     login,
     getCurrentUser,
     update,
+    getUserById,
 };
 
